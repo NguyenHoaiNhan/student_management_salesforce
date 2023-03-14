@@ -1,0 +1,101 @@
+<aura:component controller="DHA_StudentSearchController" implements="force:appHostable" access="global">
+    <aura:attribute name="class_opts" type="List" />
+    <aura:attribute name="search_val" type="string" />
+    <aura:attribute name="choosed_birthdate" type="Date" />
+    <aura:attribute name="choosed_class_opt" type="string" />
+    <aura:attribute name="column_names" type="List" />
+    <aura:attribute name="table_data" type="List" />
+    <aura:attribute name="spinner" type="boolean" default="false" />
+    <aura:attribute name="isModalOpen" type="boolean" default="false" />
+    <aura:attribute name="selectedRows" type="List" />
+    <aura:handler name="init" value="{! this }" action="{!c.init }" />
+
+    <aura:if isTrue="{!v.spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading...</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+
+    <lightning:card>
+        <aura:set attribute="title">
+            <lightning:icon iconName="standard:search" />
+            <span class="slds-var-p-horizontal_small">Student Search</span>
+        </aura:set>
+
+        <div class="slds-box slds-m-horizontal_small slds-m-vertical_small">
+            <lightning:card>
+                <div class="slds-text-heading_medium">Search Condition</div>
+                <lightning:recordEditForm objectApiName="DHA_Student__c">
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_4-of-12">
+                            <lightning:input aura:id="name-to-search" name="enter-search" label="Student Name"
+                                value="{!v.search_val}" type="search" variant="label-inline" />
+                        </div>
+                        <div class="slds-col slds-size_4-of-12">
+                            <lightning:input aura:id="birthdate-to-search" name="date-input" label="Birthday"
+                                value="{!v.choosed_birthdate}" type="date" variant="label-inline" />
+                        </div>
+                        <div class="slds-col slds-size_4-of-12"></div>
+                        <div class="slds-col slds-size_4-of-12">
+                            <lightning:combobox aura:id="class-to-filter" name="class-picker" label="Class"
+                                placeholder="--None--" options="{!v.class_opts}" value="{!v.choosed_class_opt}"
+                                variant="label-inline" />
+                        </div>
+                        <div class="slds-col slds-size_4-of-12"></div>
+                        <div class="slds-col slds-size_4-of-12"></div>
+
+                        <div class="slds-align_absolute-center">
+                            <div class="slds-col ">
+                                <lightning:button class="slds-m-top_small slds-m-horizontal_small" variant="brand"
+                                    type="submit" label="Search" onclick="{!c.onSearch}" />
+                            </div>
+                            <div class="slds-col ">
+                                <lightning:button class="slds-m-top_small slds-m-horizontal_small"
+                                    iconName="utility:clear" iconPosition="left" type="submit" label="Clear Condition"
+                                    onclick="{!c.onClear}" />
+                            </div>
+                        </div>
+                    </div>
+                </lightning:recordEditForm>
+            </lightning:card>
+        </div>
+
+
+        <div class="slds-box slds-m-horizontal_small slds-m-vertical_small">
+            <lightning:datatable columns="{! v.column_names }" data="{! v.table_data }" keyField="Student_Code__c"
+                onrowaction="{! c.openModel}" hideCheckboxColumn="true" showRowNumberColumn="true"
+                sortedBy="Student_Code__c" resizeColumnDisabled="true" selectedRows="{!v.selectedRows}">
+            </lightning:datatable>
+        </div>
+    </lightning:card>
+
+    <aura:if isTrue="{!v.isModalOpen}">
+        <!-- Modal/Popup Box starts here-->
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal/Popup Box Header-->
+                <header class="slds-modal__header">
+                    <lightning:buttonIcon iconName="utility:close" onclick="{! c.closeModal }" alternativeText="close"
+                        variant="bare-inverse" class="slds-modal__close" />
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                        Student Details
+                    </h2>
+                </header>
+                <!--Modal/Popup Box Body-->
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+
+                </div>
+                <!--Modal/Popup Box Footer-->
+                <footer class="slds-modal__footer">
+
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+</aura:component>
