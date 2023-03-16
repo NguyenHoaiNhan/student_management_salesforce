@@ -1,5 +1,4 @@
 public with sharing class DHA_StudentSearchController {
-    
     @AuraEnabled
     public static List<DHA_Class_Assignment__c> getStudentsWithConditions(String searchVal, Date birthDate, String className){
         String queryString = 'select DHA_Student__r.Id, DHA_Student__r.Student_Code__c, DHA_Student__r.Name, DHA_Student__r.Birthdate__c, DHA_Student__r.Address__c, DHA_Student__r.Email__c from DHA_Class_Assignment__c';
@@ -14,7 +13,7 @@ public with sharing class DHA_StudentSearchController {
         }
 
         if(birthDate != null){
-            conditions.add('DHA_Student__r.Birthdate__c=' + birthDate);
+            conditions.add('DHA_Student__r.Birthdate__c =: birthDate');
         }
 
         if(className != null){
@@ -23,6 +22,7 @@ public with sharing class DHA_StudentSearchController {
 
         queryString += ' where ';
         queryString += string.join(conditions, ' and ');
+        System.debug(queryString);
         List<DHA_Class_Assignment__c> result = Database.query(queryString);
 
         return result;
@@ -36,5 +36,53 @@ public with sharing class DHA_StudentSearchController {
             ];
         
         return result;
+    }
+
+    @AuraEnabled
+    public static List<DHA_Study_Result__c> getAssignmentsByStudentCode(String studentCode){
+        List<DHA_Study_Result__c> result = [
+            select DHA_Class_Assignment__r.DHA_Class__r.Name, Score_1__c, Score_2__c, Score_3__c, Final_Score__c, Result__c
+            from DHA_Study_Result__c 
+            where DHA_Class_Assignment__r.DHA_Student__r.Student_Code__c =: studentCode
+        ];
+
+        return result;
+    }
+
+    @AuraEnabled
+    public static Integer getNumberOfAssignedClassByStudentId(String id){
+        List<SObject> result = [
+            select DHA_Student__r.Id, count(Name) countVal 
+            from DHA_Class_Assignment__c 
+            where DHA_Student__r.Id =: id
+            group by DHA_Student__r.Id 
+        ];
+
+        return result.size() > 0 ?  (Integer)result[0].get('countVal') : 0;
+    }
+    
+    @AuraEnabled
+    public static Double getAvarageOfFinalResults(String id){
+        List<SObject> result = [
+            select DHA_Class_Assignment__r.DHA_Student__r.Id, avg(final_score__c) avgVal
+            from DHA_Study_Result__c
+            where DHA_Class_Assignment__r.DHA_Student__r.Id =: id
+            group by DHA_Class_Assignment__r.DHA_Student__r.Id
+        ];
+
+        return result.size() > 0 ? ((Decimal)result[0].get('avgVal')).setScale(2) : 0;
+    }
+
+    @AuraEnabled
+    public static Integer getNumberOfFinalScores(String id){
+        List<SObject> result = [
+            select DHA_Class_Assignment__r.DHA_Student__r.Id, count(DHA_Class_Assignment__r.Name) countVal
+            from DHA_Study_Result__c
+            where DHA_Study_Result__c.Final_Score__c != null 
+                and DHA_Class_Assignment__r.DHA_Student__r.Id =: id 
+            group by DHA_Class_Assignment__r.DHA_Student__r.Id
+        ];
+
+        return result.size() > 0 ? (Integer)result[0].get('countVal') : 0;
     }
 }

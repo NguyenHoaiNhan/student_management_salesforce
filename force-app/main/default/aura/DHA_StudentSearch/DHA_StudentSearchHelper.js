@@ -66,6 +66,58 @@
         });
         $A.enqueueAction(action);
     },
+    getStudyResult: function (cmp, studentCode) {
+        const action = cmp.get('c.getAssignmentsByStudentCode');
+        action.setParams({
+            studentCode: studentCode,
+        });
+        action.setCallback(this, function (response) {
+            const state = response.getState();
+            if (state == "SUCCESS") {
+                cmp.set("v.studyResultInformation", response.getReturnValue());
+            }
+        });
+        $A.enqueueAction(action);
+    },
+    getNumberOfAssignedClassByStudentId: function (cmp, studentId) {
+        const action = cmp.get('c.getNumberOfAssignedClassByStudentId');
+        action.setParams({
+            id: studentId,
+        });
+        action.setCallback(this, function (response) {
+            const state = response.getState();
+            if (state == "SUCCESS") {
+                cmp.set("v.numberOfAssignedClass", response.getReturnValue());
+            }
+        });
+        $A.enqueueAction(action);
+    },
+    getAvarageOfFinalResults: function (cmp, studentId) {
+        const action = cmp.get('c.getAvarageOfFinalResults');
+        action.setParams({
+            id: studentId,
+        });
+        action.setCallback(this, function (response) {
+            const state = response.getState();
+            if (state == "SUCCESS") {
+                cmp.set("v.avgOfFinalScores", response.getReturnValue());
+            }
+        });
+        $A.enqueueAction(action);
+    },
+    getNumberOfFinalScores: function (cmp, studentId) {
+        const action = cmp.get('c.getNumberOfFinalScores');
+        action.setParams({
+            id: studentId,
+        });
+        action.setCallback(this, function (response) {
+            const state = response.getState();
+            if (state == "SUCCESS") {
+                cmp.set("v.numberOfFinalScores", response.getReturnValue());
+            }
+        });
+        $A.enqueueAction(action);
+    },
     validateForm: function (cmp) {
         const valToSearch = cmp.get('v.search_val');
         const birthdateToSearch = cmp.get('v.choosed_birthdate');

@@ -8,6 +8,12 @@
     <aura:attribute name="spinner" type="boolean" default="false" />
     <aura:attribute name="isModalOpen" type="boolean" default="false" />
     <aura:attribute name="selectedRows" type="List" />
+    <aura:attribute name="activeSections" type="List" default="['studentInformation','studentResultInformation']" />
+    <aura:attribute name="clickedStudentId" type="Id" />
+    <aura:attribute name="studyResultInformation" type="List" />
+    <aura:attribute name="numberOfAssignedClass" type="Integer" />
+    <aura:attribute name="avgOfFinalScores" type="Decimal" />
+    <aura:attribute name="numberOfFinalScores" type="Integer" />
     <aura:handler name="init" value="{! this }" action="{!c.init }" />
 
     <aura:if isTrue="{!v.spinner}">
@@ -64,7 +70,6 @@
             </lightning:card>
         </div>
 
-
         <div class="slds-box slds-m-horizontal_small slds-m-vertical_small">
             <lightning:datatable columns="{! v.column_names }" data="{! v.table_data }" keyField="Student_Code__c"
                 onrowaction="{! c.openModel}" hideCheckboxColumn="true" showRowNumberColumn="true"
@@ -74,9 +79,8 @@
     </lightning:card>
 
     <aura:if isTrue="{!v.isModalOpen}">
-        <!-- Modal/Popup Box starts here-->
-        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
-            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
+            class="slds-modal slds-fade-in-open slds-modal_medium">
             <div class="slds-modal__container">
                 <!-- Modal/Popup Box Header-->
                 <header class="slds-modal__header">
@@ -88,7 +92,154 @@
                 </header>
                 <!--Modal/Popup Box Body-->
                 <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <lightning:accordion allowMultipleSectionsOpen="true" onsectiontoggle="{! c.handleSectionToggle }"
+                        activeSectionName="{! v.activeSections }">
+                        <lightning:accordionSection name="studentInformation" label="Student Information">
+                            <lightning:recordViewForm recordId="{!v.clickedStudentId}" objectApiName="DHA_Student__c">
+                                <div class="slds-grid slds-gutters">
+                                    <div class="slds-col slds-size_6-of-12">
+                                        <div class="c-container">
+                                            <lightning:outputField fieldName="Name" />
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-size_6-of-12">
+                                        <div class="c-container">
+                                            <lightning:outputField fieldName="Student_Code__c" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="slds-grid slds-gutters">
+                                    <div class="slds-col slds-size_6-of-12">
+                                        <div class="c-container">
+                                            <lightning:outputField fieldName="Birthdate__c" />
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-size_6-of-12">
+                                        <div class="c-container">
+                                            <lightning:outputField fieldName="Age__c" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="slds-grid slds-gutters">
+                                    <div class="slds-col slds-size_6-of-12">
+                                        <div class="c-container">
+                                            <lightning:outputField fieldName="Gender__c" />
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-size_6-of-12">
+                                        <div class="c-container"></div>
+                                    </div>
+                                </div>
+                                <div class="slds-grid slds-gutters">
+                                    <div class="slds-col slds-size_6-of-12">
+                                        <div class="c-container">
+                                            <lightning:outputField fieldName="Address__c" />
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-size_6-of-12">
+                                        <div class="c-container">
+                                            <lightning:outputField fieldName="Email__c" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </lightning:recordViewForm>
+                        </lightning:accordionSection>
 
+                        <lightning:accordionSection name="studentResultInformation" label="Student Result Information">
+                            <div class="slds-m-left_xxx-small slds-m-right_xxx-small slds-m-bottom_xx-small">
+                                <div class="slds-grid slds-gutters">
+                                    <div class="slds-col slds-size_6-of-12">
+                                        <div class="c-container">
+                                            <h3>Assigned Classes</h3>
+                                            <aura:text value="{!v.numberOfAssignedClass}" />
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-size_6-of-12">
+                                        <div class="c-container">
+                                            <h3>Classes Have Final Score</h3>
+                                            <aura:text value="{!v.numberOfFinalScores}" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="slds-grid slds-gutters">
+                                    <div class="slds-col slds-size_6-of-12">
+                                        <div class="c-container">
+                                            <h3>Average Final Score</h3>
+                                            <aura:text value="{!v.avgOfFinalScores}" />
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-size_6-of-12">
+                                        <div class="c-container">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+                                aria-labelledby="element-with-table-label other-element-with-table-label">
+                                <thead>
+                                    <tr class="slds-line-height_reset">
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Class">Class</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Score 1">Score 1</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Score 2">Score 2</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Score 3">Score 3</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Final Score">Final Score</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Result">Result</div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <aura:iteration items="{!v.studyResultInformation}" var="item">
+                                        <tr class="slds-hint-parent">
+                                            <th data-label="Class" scope="row">
+                                                <div class="slds-truncate">
+                                                    <aura:text
+                                                        value="{!item.DHA_Class_Assignment__r.DHA_Class__r.Name}" />
+                                                </div>
+                                            </th>
+                                            <td data-label="Score 1">
+                                                <div class="slds-truncate">
+                                                    <aura:text value="{!item.Score_1__c}" />
+                                                </div>
+                                            </td>
+                                            <td data-label="Score 2">
+                                                <div class="slds-truncate">
+                                                    <aura:text value="{!item.Score_2__c}" />
+                                                </div>
+                                            </td>
+                                            <td data-label="Score 3">
+                                                <div class="slds-truncate">
+                                                    <aura:text value="{!item.Score_2__c}" />
+                                                </div>
+                                            </td>
+                                            <td data-label="Final Score">
+                                                <div class="slds-truncate">
+                                                    <aura:text value="{!item.Final_Score__c}" />
+                                                </div>
+                                            </td>
+                                            <td data-label="Result">
+                                                <div class="slds-truncate">
+                                                    <aura:text value="{!item.Result__c}" />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </aura:iteration>
+                                </tbody>
+                            </table>
+                        </lightning:accordionSection>
+                    </lightning:accordion>
                 </div>
                 <!--Modal/Popup Box Footer-->
                 <footer class="slds-modal__footer">

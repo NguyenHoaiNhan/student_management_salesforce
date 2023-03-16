@@ -12,14 +12,20 @@
         helper.resetForm(cmp);
         helper.getStudentsWithConditions(cmp);
     },
-    openModel: function (component, event, helper) {
-        component.set("v.isModalOpen", true);
-        const action = event.getParam('action');
+    openModel: function (cmp, event, helper) {
         const row = event.getParam('row');
-
-          
+        const studentId = row.Id.replace(row.Id[0], '');
+        cmp.set("v.clickedStudentId", studentId);
+        helper.getStudyResult(cmp, row.Student_Code__c);
+        helper.getNumberOfAssignedClassByStudentId(cmp, studentId);
+        helper.getAvarageOfFinalResults(cmp, studentId);
+        helper.getNumberOfFinalScores(cmp, studentId);
+        cmp.set("v.isModalOpen", true);
     },
-    closeModal: function (component, event, helper) {
-        component.set("v.isModalOpen", false);
+    closeModal: function (cmp, event, helper) {
+        cmp.set("v.isModalOpen", false);
+    },
+    handleSectionToggle: function (cmp, event) {
+        const openSections = event.getParam('openSections');
     },
 })
