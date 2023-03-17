@@ -1,0 +1,175 @@
+<aura:component controller="DHA_StudentsController" implements="lightning:actionOverride,force:appHostable"
+    access="global">
+
+    <aura:attribute name="genderOptions" type="List" default="[
+        {'label': 'Male', 'value': 'male'},
+        {'label': 'Female', 'value': 'Female'},
+        {'label': 'Nonbinary', 'value': 'nonbinary'},
+    ]" />
+    <aura:attribute name="tableHeaders" type="List" default="[
+        {label: 'Full Name', fieldName: 'Name', type: 'string'},
+        {label: 'Birthdate', fieldName: 'Birthdate__c', type: 'string'}
+        {label: 'Gender', fieldName: 'Gender__c', type: 'string'}
+        {label: 'Email', fieldName: 'Email__c', type: 'string'}
+        {label: 'Cteated By', fieldName: 'CreatedById', type: 'string'}
+        {label: 'Created Date', fieldName: 'CreateDate', type: 'date'}
+    ]" />
+    <aura:attribute name="alertMessage" type="String" />
+    <aura:attribute name="tableData" type="List" />
+    <aura:attribute name="isCheckDup" type="Boolean" default="false" />
+    <aura:attribute name="nameToSearch" type="string" />
+    <aura:attribute name="birthdateToSearch" type="Date" />
+    <aura:attribute name="addressToSearch" type="string" />
+    <aura:attribute name="genderToSearch" type="string" />
+    <aura:attribute name="emailToSearch" type="string" />
+    <aura:attribute name="numberOfDup" type="string" />
+
+    <div class="slds-grid slds-wrap">
+        <div class="slds-col slds-size_2-of-3">
+            <lightning:card>
+                <aura:set attribute="title">
+                    <lightning:icon iconName="standard:record_create" />
+                    <span class="slds-var-p-horizontal_small">New Student Information</span>
+                </aura:set>
+
+                <div class="c-container slds-m-bottom_large slds-m-horizontal_small">
+                    <div class="slds-grid slds-grid_align-spread">
+                        <div class="slds-col slds-size_2-of-8">
+                            <lightning:input aura:id="form-input" label="Full Name" value="{!v.nameToSearch}"
+                                required="true" />
+                        </div>
+                        <div class="slds-col slds-size_2-of-8">
+                            <lightning:input aura:id="form-input" type="date" value="{!v.birthdateToSearch}"
+                                label="Required date field" required="true" />
+                        </div>
+                        <div class="slds-col slds-size_2-of-8">
+                            <lightning:input aura:id="form-input" value="{!v.addressToSearch}" required="true"
+                                label="Address" />
+                        </div>
+                    </div>
+                </div>
+                <div class="c-container slds-m-bottom_large slds-m-horizontal_small">
+                    <div class="slds-grid slds-grid_align-spread">
+                        <div class="slds-col slds-size_2-of-8">
+                            <lightning:combobox aura:id="form-input" label="Gender" value="{!v.genderToSearch}"
+                                required="true" options="{!v.genderOptions}" />
+                        </div>
+                        <div class="slds-col slds-size_2-of-8">
+                            <lightning:input aura:id="form-input" type="email" name="email" value="{!v.emailToSearch}"
+                                pattern="/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/" label="Email" />
+                        </div>
+                        <div class="slds-col slds-size_2-of-8">
+                        </div>
+                    </div>
+                </div>
+                <div class="c-container slds-m-bottom_large slds-m-horizontal_small">
+                    <div class="slds-grid slds-grid_align-spread">
+                        <div class="slds-col slds-size_2-of-8">
+                        </div>
+                        <div class="slds-col slds-size_2-of-8">
+                            <lightning:buttonGroup>
+                                <lightning:button label="Check For Duplicates" onclick="{!c.checkDuplicateRecord}" />
+                                <lightning:button label="Save" variant="brand" onclick="{!c.saveRecord}" />
+                            </lightning:buttonGroup>
+                        </div>
+                        <div class="slds-col slds-size_2-of-8">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <aura:if isTrue="{!v.isCheckDup}">
+                        <div class="slds-card slds-has-bottom-magnet">
+                            <div class="slds-p-around_xx-small">
+                                <div class="slds-notify slds-notify_alert slds-alert_warning" role="alert">
+                                    <span class="slds-assistive-text">warning</span>
+                                    <span class="slds-icon_container slds-icon-utility-warning slds-m-right_x-small"
+                                        title="Description of icon when needed">
+                                        <lightning:icon iconName="utility:warning" alternativeText="Approved"
+                                            title="Approved" size="x-small" />
+                                    </span>
+                                    <h2>{!v.numberOfDup}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </aura:if>
+
+                    <div class="slds-card slds-has-top-magnet">
+                        <div class="slds-p-around_xx-small">
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+                                aria-label="Example default base table of Opportunities">
+                                <thead>
+                                    <tr class="slds-line-height_reset">
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Full Name">Full Name</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Birthdate">Birthdate</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Gender">Gender</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Email">Email</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Created By">Created By</div>
+                                        </th>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title="Created Date">Created Date</div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <aura:iteration items="{!v.tableData}" var="item">
+                                        <tr class="slds-hint-parent">
+                                            <th data-label="Full Name" scope="row">
+                                                <div class="slds-truncate" title="Full Name">
+                                                    <aura:text value="{!item.Name}" />
+                                                </div>
+                                            </th>
+                                            <td data-label="Birthdate">
+                                                <div class="slds-truncate" title="Birthdate">
+                                                    <aura:text value="{!item.Birthdate__c}" />
+                                                </div>
+                                            </td>
+                                            <td data-label="Gender">
+                                                <div class="slds-truncate" title="Gender">
+                                                    <aura:text value="{!item.Gender__c}" />
+                                                </div>
+                                            </td>
+                                            <td data-label="Email">
+                                                <div class="slds-truncate" title="Email">
+                                                    <aura:text value="{!item.Email__c}" />
+                                                </div>
+                                            </td>
+                                            <td data-label="Created By">
+                                                <div class="slds-truncate" title="Created By">
+                                                    <aura:text value="{!item.CreatedBy.Name}" />
+                                                </div>
+                                            </td>
+                                            <td data-label="Created Date">
+                                                <div class="slds-truncate" title="Created Date">
+                                                    {!item.CreatedDate}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </aura:iteration>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </lightning:card>
+        </div>
+
+        <div class="slds-col slds-size_1-of-3">
+            <div class="slds-p-left_x-large">
+                <lightning:card>
+
+                </lightning:card>
+            </div>
+        </div>
+    </div>
+</aura:component>
