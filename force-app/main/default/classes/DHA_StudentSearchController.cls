@@ -3,29 +3,35 @@ public with sharing class DHA_StudentSearchController {
     public static List<DHA_Class_Assignment__c> getStudentsWithConditions(String searchVal, Date birthDate, String className){
         String queryString = 'select DHA_Student__r.Id, DHA_Student__r.Student_Code__c, DHA_Student__r.Name, DHA_Student__r.Birthdate__c, DHA_Student__r.Address__c, DHA_Student__r.Email__c from DHA_Class_Assignment__c';
         List<String> conditions = new List<String>();
+        List<DHA_Class_Assignment__c> response;
 
         if(searchVal == null && birthDate == null && className == null){
-            return Database.query(queryString);
+            response = Database.query(queryString);
+        } else{
+            if(searchVal != null){
+                conditions.add('DHA_Student__r.Name like \'%' + searchVal + '%\'');
+            }
+
+            if(birthDate != null){
+                conditions.add('DHA_Student__r.Birthdate__c =: birthDate');
+            }
+
+            if(className != null){
+                conditions.add('DHA_Class__r.Name=\'' + className + '\'');
+            }
+
+            queryString += ' where ';
+            queryString += string.join(conditions, ' and ');
+            System.debug(queryString);
+            response = Database.query(queryString);
         }
 
-        if(searchVal != null){
-            conditions.add('DHA_Student__r.Name like \'%' + searchVal + '%\'');
+        Map<String, DHA_Class_Assignment__c> studentsMap = new Map<String, DHA_Class_Assignment__c>();
+        for(DHA_Class_Assignment__c item : response){
+            studentsMap.put(item.DHA_Student__r.Student_Code__c, item);
         }
 
-        if(birthDate != null){
-            conditions.add('DHA_Student__r.Birthdate__c =: birthDate');
-        }
-
-        if(className != null){
-            conditions.add('DHA_Class__r.Name=\'' + className + '\'');
-        }
-
-        queryString += ' where ';
-        queryString += string.join(conditions, ' and ');
-        System.debug(queryString);
-        List<DHA_Class_Assignment__c> result = Database.query(queryString);
-
-        return result;
+        return studentsMap.values();
     }
 
     @AuraEnabled
