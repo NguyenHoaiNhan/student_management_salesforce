@@ -50,6 +50,7 @@ public with sharing class DHA_StudentSearchController {
             select DHA_Class_Assignment__r.DHA_Class__r.Name, Score_1__c, Score_2__c, Score_3__c, Final_Score__c, Result__c
             from DHA_Study_Result__c 
             where DHA_Class_Assignment__r.DHA_Student__r.Student_Code__c =: studentCode
+            and Is_Lastest__c = true
         ];
 
         return result;
@@ -72,7 +73,7 @@ public with sharing class DHA_StudentSearchController {
         List<SObject> result = [
             select DHA_Class_Assignment__r.DHA_Student__r.Id, avg(final_score__c) avgVal
             from DHA_Study_Result__c
-            where DHA_Class_Assignment__r.DHA_Student__r.Id =: id
+            where DHA_Class_Assignment__r.DHA_Student__r.Id =: id and Is_Lastest__c = true
             group by DHA_Class_Assignment__r.DHA_Student__r.Id
         ];
 
@@ -84,7 +85,7 @@ public with sharing class DHA_StudentSearchController {
         List<SObject> result = [
             select DHA_Class_Assignment__r.DHA_Student__r.Id, count(DHA_Class_Assignment__r.Name) countVal
             from DHA_Study_Result__c
-            where DHA_Study_Result__c.Final_Score__c != null 
+            where DHA_Study_Result__c.Final_Score__c != null and Is_Lastest__c = true
                 and DHA_Class_Assignment__r.DHA_Student__r.Id =: id 
             group by DHA_Class_Assignment__r.DHA_Student__r.Id
         ];
